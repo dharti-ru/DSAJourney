@@ -1,0 +1,42 @@
+.search-container{
+    position: relative;
+    width: 40%;
+    height: 30px;
+}
+.search-container input {
+    box-sizing: border-box;
+    width: 60%;
+    height: inherit;
+}
+.search-container .list-navigator-buttons {
+    display: inline-block;
+    width: 39%;
+}
+.search-container .list-navigator-buttons button{
+    box-sizing: border-box;
+    height: 30px;
+    width: 48%;
+    margin: 0;
+}
+.search-container .search-dropdown {
+    box-sizing: border-box;
+    position: absolute;
+    top: 30px;
+    width: 60%;
+    border: 1px solid #dedede;
+}
+.search-container .search-dropdown ul {
+    padding: 0;
+    margin: 0;
+}
+.search-container .search-dropdown ul li {
+    list-style: none;
+    padding: 1em;
+    border-bottom: 1px solid #dedede;
+}
+.search-container .search-dropdown ul .active {
+    background-color: aliceblue;
+}
+.no-results {
+    padding: 10px;
+}

@@ -20,17 +20,15 @@
 // Then types “al” → after 300ms → show “Alice” only
 
 const users = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank"];
-const searchUser = debounce(function(searchString){
-    const searchResult = users.filter(user => user.toLowerCase().includes(searchString.toLowerCase()));//.map(user => `<li>${user}</li>`);
-    const ul = document.getElementById("search-result");
-    ul.innerHTML = "";
-    searchResult.forEach(user => {
-        const li = document.createElement("li");
-        li.textContent = user;
-        ul.appendChild(li);
-    })
-    // document.getElementById("search-result").innerHTML = searchResult.join("");
-});
+const searchDropDown = document.getElementById("search-dropdown");
+let selectedListItem = -1;
+const prevButton = document.getElementById("prevButton");
+const nextButton = document.getElementById("nextButton");
+
+prevButton.disabled = true;
+nextButton.disabled = true;
+
+// Search as user types something
 document.getElementById("search-user").addEventListener("input",function(e){
     let searchString = document.getElementById("search-user").value;
     searchUser(searchString);
@@ -45,3 +43,63 @@ function debounce(callback){
         },300)
     }
 }
+const searchUser = debounce(function(searchString){
+    if(searchString === ""){
+        hideSearchDropdown();
+        return;
+    }
+    const searchResult = users.filter(user => user.toLowerCase().includes(searchString.toLowerCase()));
+    selectedListItem = -1;
+    if(searchResult.length <= 0){
+        prevButton.disabled = true;
+        nextButton.disabled = true;
+        searchDropDown.innerHTML = `<div class="no-results">No results found.</div>`;
+    }
+    else {
+        nextButton.disabled = false;
+        searchDropDown.innerHTML = "";
+        const ul = document.createElement("ul");
+        ul.setAttribute("id","search-user-list");
+        searchDropDown.appendChild(ul);
+        
+        searchResult.forEach((user,index) => {
+            const li = document.createElement("li");
+            li.textContent = user;
+            li.setAttribute("data-index",index);
+            ul.appendChild(li);
+        })
+    }
+});
+// Hide search dropdown common function
+function hideSearchDropdown(){
+    document.getElementById("search-user").value = "";
+    searchDropDown.innerHTML = "";
+}
+// List navigation buttons
+function navigateList(direction){
+    const list = document.querySelectorAll("#search-dropdown li");
+
+    if(direction == 'next') {
+        if(selectedListItem < list.length - 1){
+            selectedListItem++;
+            prevButton.disabled = false;
+            if(selectedListItem >= list.length - 1)
+                nextButton.disabled = true;
+        }
+    }
+    if(direction == 'prev') {
+        if(selectedListItem > -1){
+            selectedListItem--;
+            nextButton.disabled = false;
+            if(selectedListItem <= 0)
+                prevButton.disabled = true;
+        }
+    }
+    if(selectedListItem > -1 && selectedListItem < list.length){
+        list.forEach(li => {
+            if(li.dataset.index == selectedListItem){
+                li.classList.add("active");
+            } else li.classList.remove("active");
+        })
+    }
+};

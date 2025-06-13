@@ -2,16 +2,26 @@
 <html>
   <head>
     <title>This is the title of the webpage</title>
+    <link rel="stylesheet" href="search-filter.css" />
   </head>
   <body>
-    <input
-      id="search-user"
-      name="search-user"
-      type="text"
-      placeholder="Search User"
-      alt="Search User"
-    />
-    <ul id="search-result"></ul>
+    <div class="search-container">
+      <!-- Search User Input -->
+      <input
+        id="search-user"
+        name="search-user"
+        type="text"
+        placeholder="Search User"
+        alt="Search User"
+      />
+      <!-- List navigation buttons -->
+      <div class="list-navigator-buttons">
+        <button onclick="navigateList('prev')" id="prevButton">Up</button>
+        <button onclick="navigateList('next')" id="nextButton">Down</button>
+      </div>
+      <!-- Search Dropdown -->
+      <div id="search-dropdown" class="search-dropdown"></div>
+    </div>
     <script src="search-filter.js"></script>
   </body>
 </html>
