@@ -1,40 +1,78 @@
-// 🧩 Scenario: "Live Search Filter"
-// Problem:
-// Build a search bar that filters a list of names as the user types.
-// But to avoid unnecessary re-renders, apply debounce of 300ms on the input.
-// 🧠 Expected Behavior:
-// You’re given an input field and a list of names.
+export  class SearchFilter{
+    constructor(target,users){
+        if (!document.querySelector('link[href="search-filter.css"]')) {
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = "search-filter.css";
+            document.head.appendChild(link);
+        }
+        this.users = [...users];
+        this.selectedListItem = -1;
+        this.root = document.createElement("div");
+        this.root.innerHTML = `<div id="search-container" class="search-container">
+        <input
+            id="search-user"
+            name="search-user"
+            type="text"
+            placeholder="Search User"
+            alt="Search User"
+        />
+        <div class="list-navigator-buttons">
+            <button id="prevButton">Up</button>
+            <button id="nextButton">Down</button>
+        </div>
+        <div id="search-dropdown" class="search-dropdown"></div>
+        </div>`;
+        
+        (typeof target === "string" ? document.querySelector(target) : target).appendChild(this.root);
+        this.searchDropDown = document.getElementById("search-dropdown");
+        this.prevButton = document.getElementById("prevButton");
+        this.nextButton = document.getElementById("nextButton");
 
-// As the user types, the list should update to only show items that include the typed string.
+        this.prevButton.disabled = true;
+        this.nextButton.disabled = true;
 
-// But the filtering should happen only after 300ms of inactivity, not on every keystroke.
+        this.init();
+    }
 
-// 🧪 Example:
-// Let’s say the name list is:
+init(){
+    this.searchUser = this.debounce(function(searchString){
+        if(searchString === ""){
+            this.hideSearchDropdown();
+            return;
+        }
+        const searchResult = this.users.filter(user => user.toLowerCase().includes(searchString.toLowerCase()));
+        this.selectedListItem = -1;
+        if(searchResult.length <= 0){
+            this.prevButton.disabled = true;
+            this.nextButton.disabled = true;
+            this.searchDropDown.innerHTML = `<div class="no-results">No results found.</div>`;
+        }
+        else {
+            this.nextButton.disabled = false;
+            this.searchDropDown.innerHTML = "";
+            const ul = document.createElement("ul");
+            ul.setAttribute("id","search-user-list");
+            this.searchDropDown.appendChild(ul);
+            
+            searchResult.forEach((user,index) => {
+                const li = document.createElement("li");
+                li.textContent = user;
+                li.setAttribute("data-index",index);
+                ul.appendChild(li);
+            })
+        }
+    }.bind(this));
+    // Search as user types something
+    document.getElementById("search-user").addEventListener("input",(e)=>{
+        let searchString = document.getElementById("search-user").value;
+        this.searchUser(searchString);
+    });
+    this.prevButton.addEventListener("click", () => this.navigateList("prev"));
+    this.nextButton.addEventListener("click", () => this.navigateList("next"));
 
-// ["Alice", "Bob", "Charlie", "David", "Eve", "Frank"]
-// If the user types:
-
-// “a” → show “Alice”, “Charlie”, “David”, “Frank”
-
-// Then types “al” → after 300ms → show “Alice” only
-
-const users = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank"];
-const searchDropDown = document.getElementById("search-dropdown");
-let selectedListItem = -1;
-const prevButton = document.getElementById("prevButton");
-const nextButton = document.getElementById("nextButton");
-
-prevButton.disabled = true;
-nextButton.disabled = true;
-
-// Search as user types something
-document.getElementById("search-user").addEventListener("input",function(e){
-    let searchString = document.getElementById("search-user").value;
-    searchUser(searchString);
-});
-
-function debounce(callback){
+}
+debounce(callback){
     let timer;
     return (searchString)=>{
         clearTimeout(timer);
@@ -43,63 +81,38 @@ function debounce(callback){
         },300)
     }
 }
-const searchUser = debounce(function(searchString){
-    if(searchString === ""){
-        hideSearchDropdown();
-        return;
-    }
-    const searchResult = users.filter(user => user.toLowerCase().includes(searchString.toLowerCase()));
-    selectedListItem = -1;
-    if(searchResult.length <= 0){
-        prevButton.disabled = true;
-        nextButton.disabled = true;
-        searchDropDown.innerHTML = `<div class="no-results">No results found.</div>`;
-    }
-    else {
-        nextButton.disabled = false;
-        searchDropDown.innerHTML = "";
-        const ul = document.createElement("ul");
-        ul.setAttribute("id","search-user-list");
-        searchDropDown.appendChild(ul);
-        
-        searchResult.forEach((user,index) => {
-            const li = document.createElement("li");
-            li.textContent = user;
-            li.setAttribute("data-index",index);
-            ul.appendChild(li);
-        })
-    }
-});
+
 // Hide search dropdown common function
-function hideSearchDropdown(){
+hideSearchDropdown(){
     document.getElementById("search-user").value = "";
-    searchDropDown.innerHTML = "";
+    this.searchDropDown.innerHTML = "";
 }
 // List navigation buttons
-function navigateList(direction){
+navigateList(direction){
     const list = document.querySelectorAll("#search-dropdown li");
 
     if(direction == 'next') {
-        if(selectedListItem < list.length - 1){
-            selectedListItem++;
-            prevButton.disabled = false;
-            if(selectedListItem >= list.length - 1)
-                nextButton.disabled = true;
+        if(this.selectedListItem < list.length - 1){
+            this.selectedListItem++;
+            this.prevButton.disabled = false;
+            if(this.selectedListItem >= list.length - 1)
+                this.nextButton.disabled = true;
         }
     }
     if(direction == 'prev') {
-        if(selectedListItem > -1){
-            selectedListItem--;
-            nextButton.disabled = false;
-            if(selectedListItem <= 0)
-                prevButton.disabled = true;
+        if(this.selectedListItem > -1){
+            this.selectedListItem--;
+            this.nextButton.disabled = false;
+            if(this.selectedListItem <= 0)
+                this.prevButton.disabled = true;
         }
     }
-    if(selectedListItem > -1 && selectedListItem < list.length){
+    if(this.selectedListItem > -1 && this.selectedListItem < list.length){
         list.forEach(li => {
-            if(li.dataset.index == selectedListItem){
+            if(li.dataset.index == this.selectedListItem){
                 li.classList.add("active");
             } else li.classList.remove("active");
         })
     }
 };
+}
