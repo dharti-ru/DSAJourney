@@ -40,7 +40,8 @@ function getFirstUniqueCharIndex(str){
     let uniqueCharSet = new Set();
     let charMap = new Array(26).fill(0);
     for(const char of str){
-        charMap[char.charCodeAt(0) - 97]++;
+        let idx = char.charCodeAt(0) - 97;
+        charMap[idx]++;
         if(charMap[idx] == 1) {
             uniqueCharSet.add(char);
         } else if(charMap[idx] > 1) uniqueCharSet.delete(char);
